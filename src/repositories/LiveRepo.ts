@@ -1,6 +1,6 @@
 import AgoraRTC, { IAgoraRTCClient } from "agora-rtc-sdk-ng";
 import { ILocalVideoTrack } from "agora-rtc-sdk-ng";
-import VideoCompositingExtension, { VideoTrackCompositor } from "agora-extension-video-compositor";
+import VideoCompositingExtension from "agora-extension-video-compositor";
 
 export type LiveRoleOpt =  "host";
 interface RTCInterface {
@@ -20,7 +20,7 @@ export class LiveRepo {
     private track?: ILocalVideoTrack;
     private layer1Track?: ILocalVideoTrack;
     private handleTrackStopped?: () => void;
-    private compositor?: VideoTrackCompositor;
+    private compositor?: any;
     
 
     setProfile(channel: string, token: string, uid: number) {
