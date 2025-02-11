@@ -1,5 +1,6 @@
 "use client"
 
+import Error from "next/error";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -29,8 +30,8 @@ export const LoginPage = () => {
       }
 
       router.replace("/")
-    } catch (err: any) {
-      setError(err.message === "forbidden" ? "Invalid email or password" : err?.message);
+    } catch  {
+      setError("Invalid email or password");
     } 
     setLoading(false);
   };

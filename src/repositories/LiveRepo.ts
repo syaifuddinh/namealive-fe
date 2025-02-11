@@ -1,10 +1,9 @@
-import AgoraRTC from "agora-rtc-sdk-ng";
+import AgoraRTC, { IAgoraRTCClient } from "agora-rtc-sdk-ng";
+import { ILocalVideoTrack } from "agora-rtc-sdk-ng";
 
 export type LiveRoleOpt =  "host";
 interface RTCInterface {
-  localAudioTrack: any;
-  localVideoTrack: any;
-  client: any;
+  client: IAgoraRTCClient |null;
 };
 
 export class LiveRepo {
@@ -14,11 +13,9 @@ export class LiveRepo {
     private token: string = "";
     private uid: number = 0;
     private rtc: RTCInterface = {
-      localAudioTrack: null,
-      localVideoTrack: null,
       client: null
     };
-    private track: any;
+    private track?: ILocalVideoTrack;
     private handleTrackStopped?: () => void;
 
     setProfile(channel: string, token: string, uid: number) {
@@ -44,6 +41,7 @@ export class LiveRepo {
     }
 
     async joinAsHost(): Promise<void> {
+      if(!this.rtc.client) return;
       await this.rtc.client.join(this.appId, this.channel, this.token, this.uid);
       this.rtc.client.setClientRole(this.role);
       
@@ -52,6 +50,7 @@ export class LiveRepo {
 
     // Screensharing your computer
     async publish(): Promise<void> {
+      if(!this.rtc.client) return
       try {
           const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
           
@@ -69,6 +68,7 @@ export class LiveRepo {
     }
 
     registerEvent() {
+        if(!this.track) return
         this.track.getMediaStreamTrack().addEventListener("ended", () => {
             console.log("Screen sharing has been stopped");
             if(this.handleTrackStopped) this.handleTrackStopped()
@@ -76,6 +76,7 @@ export class LiveRepo {
     }
 
     async unpublish(): Promise<void> {
+      if(!this.track) return;
       console.log("Unpublish track")
       console.log({ rtcclientend: this.rtc.client })
       // this.rtc.client.unpublish()
@@ -85,6 +86,7 @@ export class LiveRepo {
     }
 
     async stop(): Promise<void> {
+      if(!this.rtc.client) return
       await this.rtc.client.leave()
     }
   }

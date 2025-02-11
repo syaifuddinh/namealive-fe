@@ -1,7 +1,7 @@
 import { APIReq } from "@/types/api";
 import { objectToUrlParams } from "./string";
 
-export const clientapi = async <T extends Record<string, any> | BodyInit | null | undefined>(url: string, method: string, data?: T) => {
+export const clientapi = async <T extends Record<string, string|number|boolean> | BodyInit | null | undefined>(url: string, method: string, data?: T) => {
     let apiUrl: string = url
     const params: APIReq<string> = {
         method: method,
@@ -14,7 +14,7 @@ export const clientapi = async <T extends Record<string, any> | BodyInit | null 
         params.body = JSON.stringify(data)
     else if(method.toLowerCase() === "get") {
         if(typeof data === "object") {
-            apiUrl += objectToUrlParams((data) as Record<string, any>)
+            apiUrl += objectToUrlParams((data) as Record<string, string|number|boolean>)
         }
     } 
     

@@ -1,7 +1,7 @@
 import { APIReq } from "@/types/api";
 import { objectToUrlParams } from "./string";
 
-export const protectedapi = async <T extends Record<string, any> | BodyInit | null | undefined>(url: string, method: string, data?: T) => {
+export const protectedapi = async <T extends Record<string, string|number|boolean> | BodyInit | null | undefined>(url: string, method: string, data?: T) => {
     let apiUrl: string = url
     const headers = await import('next/headers')
     const cookies = headers.cookies
@@ -19,7 +19,7 @@ export const protectedapi = async <T extends Record<string, any> | BodyInit | nu
         params.body = JSON.stringify(data)
     else if(method.toLowerCase() === "get") {
         if(typeof data === "object") {
-            apiUrl += objectToUrlParams((data) as Record<string, any> )
+            apiUrl += objectToUrlParams((data) as Record<string, string|number|boolean> )
         }
     } 
         
