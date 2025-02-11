@@ -12,8 +12,7 @@ export const protectedapi = async <T extends Record<string, string|number|boolea
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({})
+        }
     }
     if(method.toLowerCase() === "post" || method.toLowerCase() === "put") 
         params.body = JSON.stringify(data)
