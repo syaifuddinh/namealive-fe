@@ -1,8 +1,7 @@
-import { NextResponse } from "next/server";
-import { NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { protectedapi } from "@/utils/api";
 
-export async function POST(req: NextApiRequest, { params }: {params: Promise<{ id: string }>}) {
+export async function POST(req: NextRequest, { params }: {params: Promise<{ id: string }>}) {
   const matchId = (await params).id
   const baseUrl = process.env.BACKEND_MATCH_URL
   const url = baseUrl + "/match/" + matchId + "/token"
