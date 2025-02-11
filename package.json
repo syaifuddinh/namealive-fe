@@ -10,6 +10,7 @@
     "review": "tsc --noEmit"
   },
   "dependencies": {
+    "agora-extension-video-compositor": "1.0.0-beta",
     "agora-rtc-sdk-ng": "^4.23.1",
     "next": "15.1.3",
     "react": "^19.0.0",

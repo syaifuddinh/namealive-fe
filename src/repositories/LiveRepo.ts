@@ -1,5 +1,6 @@
 import AgoraRTC, { IAgoraRTCClient } from "agora-rtc-sdk-ng";
 import { ILocalVideoTrack } from "agora-rtc-sdk-ng";
+import VideoCompositingExtension, { VideoTrackCompositor } from "agora-extension-video-compositor";
 
 export type LiveRoleOpt =  "host";
 interface RTCInterface {
@@ -12,11 +13,15 @@ export class LiveRepo {
     private channel: string = "";
     private token: string = "";
     private uid: number = 0;
+    private cornerImage?: string;
     private rtc: RTCInterface = {
       client: null
     };
     private track?: ILocalVideoTrack;
+    private layer1Track?: ILocalVideoTrack;
     private handleTrackStopped?: () => void;
+    private compositor?: VideoTrackCompositor;
+    
 
     setProfile(channel: string, token: string, uid: number) {
       this.channel = channel;
@@ -32,7 +37,10 @@ export class LiveRepo {
 
       this.init()
       await this.joinAsHost()
-      await this.publish()
+      if(!this.cornerImage)
+        await this.publishOnlyScreen()
+      else
+        await this.publishCustomScreen()
       this.registerEvent()
     }
   
@@ -49,11 +57,10 @@ export class LiveRepo {
     }
 
     // Screensharing your computer
-    async publish(): Promise<void> {
+    async publishOnlyScreen(): Promise<void> {
       if(!this.rtc.client) return
       try {
           const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-          
           this.track = AgoraRTC.createCustomVideoTrack({
               mediaStreamTrack: screenStream.getVideoTracks()[0]
           });
@@ -77,16 +84,99 @@ export class LiveRepo {
 
     async unpublish(): Promise<void> {
       if(!this.track) return;
-      console.log("Unpublish track")
-      console.log({ rtcclientend: this.rtc.client })
-      // this.rtc.client.unpublish()
       this.track.stop()
       this.track.close()
+      if(this.cornerImage) this.unpublishCompositor()
       console.log("Screen-sharing stopped")
     }
+
+    unpublishCompositor(): void {
+      if(!this.compositor) return;
+      if(!this.track) return;
+      if(!this.layer1Track) return;
+      this.track.unpipe();
+      this.compositor?.unpipe()
+      this.layer1Track?.unpipe()
+      this.layer1Track?.stop()
+      this.layer1Track?.close()
+    } 
 
     async stop(): Promise<void> {
       if(!this.rtc.client) return
       await this.rtc.client.leave()
+    }
+
+    setCornerImage(image: string): void {
+      this.cornerImage = image
+    }
+
+    async extendCompositor(): Promise<void> {
+      const extension = new VideoCompositingExtension();
+      AgoraRTC.registerExtensions([extension])
+      this.compositor = extension.createProcessor()
+      await this.compositor.enable()
+
+    }
+
+    storeCornerImage(image: string): void {
+      this.setCornerImage(image)
+      this.extendCompositor()
+    }
+
+    async createMedia(): Promise<MediaStreamTrack> {
+      if(!this.compositor) throw new Error("Compositor is empty")
+      if(!this.cornerImage) throw new Error("Image is empty")
+
+      const canvas = document.createElement("canvas");
+      canvas.getContext("2d");
+      const screenTrack = await AgoraRTC.createScreenVideoTrack({
+        encoderConfig: { frameRate: 15 },
+      }, "enable")
+
+      this.layer1Track = screenTrack[0]
+
+      const screenEndpoint = this.compositor.createInputEndpoint({
+        x: 0,
+        y: 0,
+        width: 1280,
+        height: 720,
+        fit: "cover",
+      })
+
+      this.compositor.addImage(this.cornerImage, {
+          x: 960,
+          y: 0,
+          width: 320,
+          height: 180,
+          fit: "cover",
+      });
+      
+      this.layer1Track.pipe(screenEndpoint).pipe(this.layer1Track.processorDestination)      
+      const media = canvas.captureStream().getVideoTracks()[0] 
+
+      return media;
+    }
+
+    async publishCustomScreen(): Promise<void> {
+      if(!this.rtc.client) return
+      if(!this.compositor) throw new Error("Compositor is empty")
+      const track = await this.createMedia()
+      
+      this.track = AgoraRTC.createCustomVideoTrack({
+          mediaStreamTrack: track
+      });
+      this.compositor.setOutputOptions(1280, 720, 15);
+      
+      await this.compositor?.start()
+      this.track.pipe(this.compositor).pipe(this.track.processorDestination)
+
+      // Publish screen-sharing stream
+      await this.rtc.client.publish(this.track);
+
+      console.log("Screen sharing with brand logo started");
+      try {
+      } catch (error) {
+          console.error("Failed to start screen sharing:", error);
+      }
     }
   }

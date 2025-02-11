@@ -19,7 +19,6 @@ export const Navigation = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button>🔔</button>
           <div className="relative">
             <button
               className="w-8 h-8 rounded-full bg-pink-500 text-white"

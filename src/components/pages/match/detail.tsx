@@ -33,7 +33,7 @@ export const MatchDetailPage = ({
     channel: string;
  }) => {
     breadcrumbContent[1].content = name
-    const match = MatchDetailHook(matchId, channel)
+    const match = MatchDetailHook(matchId, channel, image)
     
     return (
         <>
