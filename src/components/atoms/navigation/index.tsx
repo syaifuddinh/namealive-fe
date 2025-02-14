@@ -11,26 +11,32 @@ export const Navigation = () => {
   }
   
   return (
-      <nav className="flex items-center justify-between p-4 bg-white shadow">
-        <div className="flex items-center space-x-4">
-          <Link href="/">
-            <span className="text-lg font-bold text-gray-700">NAMEALIVE</span>
-          </Link>
-        </div>
+      <nav className="bg-white shadow pt-4 px-4">
+          <div className="flex items-center justify-between  ">
+            <div>
+              <div className="flex items-center space-x-4">
+                <Link href="/">
+                  <span className="text-lg font-bold text-gray-700">NAMEALIVE</span>
+                </Link>
+              </div>
+            </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <button
-              className="w-8 h-8 rounded-full bg-pink-500 text-white"
-              onClick={onProfileClick}
-            >
-                A
-              </button>
-            { isProfileVisible && (
-                <Profile className="absolute top-[102%] right-0" />
-            ) }
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button
+                  className="w-8 h-8 rounded-full bg-pink-500 text-white"
+                  onClick={onProfileClick}
+                >
+                    A
+                  </button>
+                { isProfileVisible && (
+                    <Profile className="absolute top-[102%] right-0" />
+                ) }
+              </div>
+            </div>
           </div>
-        </div>
+
+          <MenuNavigation />
       </nav>
     
   )
@@ -63,4 +69,27 @@ const Profile = ({ className }: { className?: string }) => (
           </form>
       </div>
     </div>
+)
+
+const menus = [
+  {
+    "url": "/p",
+    "name": "Match"
+  },
+  {
+    "url": "/p/match-cast",
+    "name": "Match Cast"
+  }
+]
+
+const MenuNavigation = () => (
+  <div className="flex mt-2">
+      {
+        menus.map((menu) => (
+          <Link key={menu.url} href={menu.url} className="text-sm pb-4 px-2 text-gray100">
+            { menu.name }
+          </Link>
+        ))
+      }
+  </div>
 )

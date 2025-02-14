@@ -17,7 +17,7 @@ export default async function Home() {
         
         <div className="py-4 bg-white mt-4">
           <p className="text-sm text-gray-600">
-          Manage incoming matches and broadcast when the time meets the schedule.
+          Manage incoming matches
           </p>
         </div>
 

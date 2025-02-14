@@ -9,7 +9,7 @@ export type BroadcastStatus = "idle" | "pending" | "ongoing"
 const match = new MatchRepo();
 const broadcaster = new LiveRepo()
 
-export const MatchDetailHook = (matchId: string, channel: string, brandImage: string) => {
+export const MatchDetailHook = (matchId: string, channel: string) => {
     const [status, setStatus] = useState<BroadcastStatus>("idle")
     const [isLiveLoading, setIsLiveLoading] = useState<boolean>(false)
 
@@ -19,8 +19,6 @@ export const MatchDetailHook = (matchId: string, channel: string, brandImage: st
         const token = liveTicket.data.token;
         const uid = liveTicket.data.uid;
         broadcaster.setProfile(channel, token, uid)
-
-        if(brandImage) broadcaster.storeCornerImage(brandImage)
             
         broadcaster.onTrackStopped(() => {
             toIdle()
