@@ -135,7 +135,7 @@ export class LiveRepo {
       const canvas = document.createElement("canvas");
       canvas.getContext("2d");
 
-      this.layer1Track = screenTrack
+      this.layer1Track = screenTrack[0]
 
       const screenEndpoint = this.compositor.createInputEndpoint({
         x: 0,
