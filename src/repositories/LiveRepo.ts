@@ -37,10 +37,11 @@ export class LiveRepo {
 
       this.init()
       await this.joinAsHost()
-      if(!this.cornerImage)
-        await this.publishOnlyScreen()
-      else
-        await this.publishCustomScreen()
+      await this.publishOnlyScreen()
+      // if(!this.cornerImage)
+      //   await this.publishOnlyScreen()
+      // else
+      //   await this.publishCustomScreen()
       this.registerEvent()
     }
   
@@ -91,11 +92,11 @@ export class LiveRepo {
     }
 
     unpublishCompositor(): void {
-      if(!this.compositor) return;
-      if(!this.track) return;
+      if(this.compositor) this.compositor?.unpipe()
+
+      if(this.track) this.track.unpipe();
+
       if(!this.layer1Track) return;
-      this.track.unpipe();
-      this.compositor?.unpipe()
       this.layer1Track?.unpipe()
       this.layer1Track?.stop()
       this.layer1Track?.close()
@@ -126,14 +127,15 @@ export class LiveRepo {
     async createMedia(): Promise<MediaStreamTrack> {
       if(!this.compositor) throw new Error("Compositor is empty")
       if(!this.cornerImage) throw new Error("Image is empty")
-
-      const canvas = document.createElement("canvas");
-      canvas.getContext("2d");
+        
       const screenTrack = await AgoraRTC.createScreenVideoTrack({
         encoderConfig: { frameRate: 15 },
       }, "enable")
 
-      this.layer1Track = screenTrack[0]
+      const canvas = document.createElement("canvas");
+      canvas.getContext("2d");
+
+      this.layer1Track = screenTrack
 
       const screenEndpoint = this.compositor.createInputEndpoint({
         x: 0,

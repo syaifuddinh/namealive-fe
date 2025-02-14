@@ -25,9 +25,9 @@ export const MatchDetailHook = (matchId: string, channel: string, brandImage: st
         broadcaster.onTrackStopped(() => {
             toIdle()
         })
+        await broadcaster.start()
+        setStatus("ongoing")
         try {
-            await broadcaster.start()
-            setStatus("ongoing")
         } catch(e) {
             console.log(e)
         }
